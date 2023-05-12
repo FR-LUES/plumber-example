@@ -1,9 +1,8 @@
 ---
-github_document
+output: github_document
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -14,11 +13,14 @@ knitr::opts_chunk$set(
 
 # plumber-example
 
-This repository demonstrates how to set up a `{plumber}` Application Programming Interface (API) in the minimum number of steps.
+This repository demonstrates how to set up a `{plumber}` Application Programming Interface (API).
+
+Find the `{plumber}` documentation here: https://www.rplumber.io/index.html
 
 ## Requirements
-- R
-- Docker Desktop
+- R >= 4.1(for steps 1 - 4).
+- Docker Desktop (for steps 5 - 9).
+- A Digital Ocean account, or access to the FR account (for steps 9 - 21).
 
 ## Instructions
 
@@ -27,6 +29,23 @@ To set up a `{plumber}` API take the following steps:
 1. Place the functions you wish to expose via an API in a file, usually in the /R directory, see the example /R/functions.R file.
 2. Create a plumber.R file, see the example file (/plumber.R).
 3. Test the API works locally by running `plumber::pr("plumber.R") |> plumber::pr_run(port = 8000)`. This should open a window with automatically generated API documentation, available at http://localhost:8000/__docs__/ or http://127.0.0.1:8000/__docs__/.
-4. To deploy the app first create a file named "Dockerfile" with no file extenstion, see example /Dockerfile.
-6. 
+4. Install the `{renv}` R package, and create a renv.lock file with `renv::init()`, this file captures all of the project dependencies.
+5. To deploy the app first create a file named "Dockerfile" with no file extension, see example /Dockerfile.
+6. Open a terminal in the working directory of your repository, in RStudio simply click on the terminal tab.
+7. Build a Docker image with `docker build --no-cache -t registry.digitalocean.com/forestresearch/plumber-example:v0.1 .`
+8. Check the Docker image runs locally by running `docker run -d -p 8000:8000 --privileged=true --name plumber-example registry.digitalocean.com/forestresearch/plumber-example:v0.1`, then navigate to the documentation as described above.
+9. Once satisfied that the Docker instance is running as expected stop and remove the instance with `docker rm -f plumber-example`.
+10. Log into a container registry, e.g. the Digital Ocean container registry using `docker login registry.digitalocean.com`. You will be prompted to enter a user and password when logging in for the first time, you should paste in a key which should be created here https://cloud.digitalocean.com/account/api, after logging in to Digital Ocean.
+11. Push your Docker image to a container registry using `docker push registry.digitalocean.com/forestresearch/plumber-example:v0.1`.
+12. Enter the server you wish to deploy the API on, e.g. a Digital Ocean droplet, through either SSH or opening the console through the Droplets web page.
+13. In the server check Docker is installed with `docker info`, if it is not installed install docker following the steps here (https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04). Usually it is preferable to skip this step by creating a Digital Ocean droplet with Docker pre-installed.
+14. Log into the container registry from the server as above with `docker login registry.digitalocean.com`.
+15. Pull your docker image into the server with `docker pull registry.digitalocean.com/forestresearch/plumber-example:v0.1`.
+16. Check the image has been pulled with `docker images`.
+17. Deploy your API run your docker image with `docker run -d -p 8000:8000 --privileged=true --name plumber-example registry.digitalocean.com/forestresearch/plumber-example:v0.1`
+18. Check the status of the docker instance with `docker ps -a`
+19. If your Docker instance has exited inspect the container logs with `docker logs plumber-example`.
+20. You can explore an running Docker instance with `docker exec -it plumber-example bash`, exit the instance with `exit`.
+21. There you may perform tasks such as checking all the required files are present with `ls -lsa` etc.
 
+Alternatively a `{plumber}` API may be deployed using a one-click solution such as Posit Connect.
