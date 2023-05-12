@@ -1,0 +1,32 @@
+---
+github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# plumber-example
+
+This repository demonstrates how to set up a `{plumber}` Application Programming Interface (API) in the minimum number of steps.
+
+## Requirements
+- R
+- Docker Desktop
+
+## Instructions
+
+To set up a `{plumber}` API take the following steps:
+
+1. Place the functions you wish to expose via an API in a file, usually in the /R directory, see the example /R/functions.R file.
+2. Create a plumber.R file, see the example file (/plumber.R).
+3. Test the API works locally by running `plumber::pr("plumber.R") |> plumber::pr_run(port = 8000)`. This should open a window with automatically generated API documentation, available at http://localhost:8000/__docs__/ or http://127.0.0.1:8000/__docs__/.
+4. To deploy the app first create a file named "Dockerfile" with no file extenstion, see example /Dockerfile.
+6. 
+
