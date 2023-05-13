@@ -4,30 +4,36 @@
 # plumber-example
 
 This repository demonstrates how to set up a `{plumber}` Application
-Programming Interface (API).
+Programming Interface (API), then call that API in R.
 
 Find the `{plumber}` documentation here:
 <https://www.rplumber.io/index.html>
 
 ## Requirements
 
-- R \>= 4.1(for steps 1 - 4).
-- Docker Desktop (for steps 5 - 9).
+- R \>= 4.1(for steps 1 - 4, Creation).
+- Docker Desktop (for steps 5 - 9, Dockerization).
 - A Digital Ocean account, or access to the FR account (for steps 9 -
-  21).
+  21, Deployment).
 
 ## Instructions
 
 To set up a `{plumber}` API take the following steps:
 
+### Creation
+
 1.  Place the functions you wish to expose via an API in a file, usually
     in the /R directory, see the example /R/functions.R file.
-2.  Create a plumber.R file, see the example file (/plumber.R).
+2.  Create a plumber.R file, see the example file (/plumber.R)
+    containing a single GET endpoint.
 3.  Test the API works locally by running
     `plumber::pr("plumber.R") |> plumber::pr_run(port = 8000)`. This
     should open a window with automatically generated API documentation,
     available at <http://localhost:8000/__docs__/> or
     <http://127.0.0.1:8000/__docs__/>.
+
+### Dockerization
+
 4.  Install the `{renv}` R package, and create a renv.lock file with
     `renv::init()`, this file captures all of the project dependencies.
 5.  To deploy the app first create a file named “Dockerfile” with no
@@ -41,6 +47,9 @@ To set up a `{plumber}` API take the following steps:
     then navigate to the documentation as described above.
 9.  Once satisfied that the Docker instance is running as expected stop
     and remove the instance with `docker rm -f plumber-example`.
+
+### Deployment
+
 10. Log into a container registry, e.g. the Digital Ocean container
     registry using `docker login registry.digitalocean.com`. You will be
     prompted to enter a user and password when logging in for the first
@@ -75,3 +84,24 @@ To set up a `{plumber}` API take the following steps:
 
 Alternatively a `{plumber}` API may be deployed using a one-click
 solution such as Posit Connect.
+
+## Calling the API in R
+
+To call the API locally first run the Docker container with
+`docker run -d -p 8000:8000 --privileged=true --name plumber-example registry.digitalocean.com/forestresearch/plumber-example:v0.1`.
+
+Then use the following code:
+
+    api_url <- "http://127.0.0.1:8000/exampleEndPoint"
+
+    responseRaw <- httr::GET(url = api_url, query = list(name = "Henry", age = "60"))
+
+    responseContent <- httr::content(responseRaw)
+
+    responseContent
+
+    # If the response is in JSON format, rather than the simple unboxed response
+    # in this example, use this additional code to unpack the response:
+    # response <- jsonlite::fromJSON(responseContent)
+
+If the API is deployed non-locally, simply replace the URL.
